@@ -3,7 +3,9 @@ import express from 'express';
 import { faker } from '@faker-js/faker';
 
 import companies from './data/companies.json';
+import { SpellingService } from "./spelling-service";
 
+const spellingService = new SpellingService(companies)
 const COINS = [
   'btc',
   'eth',
@@ -20,11 +22,13 @@ const port = 3001;
 
 app.use(cors());
 
-app.get('/companies', (req, res) => {
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+app.get('/companies', async (req, res) => {
   const searchQuery = req.query.query as string | undefined;
-  const filteredCompanies = companies.filter((company) =>
-    searchQuery ? company.name.toLowerCase().includes(searchQuery.toLowerCase()) : true,
-  );
+  // const filteredCompanies = companies.filter((company) =>
+  //   searchQuery ? company.name.toLowerCase().includes(searchQuery.toLowerCase()) : true,
+  // );
+  const filteredCompanies = searchQuery ? await spellingService.search(searchQuery) : companies
 
   res.send(filteredCompanies);
 });
