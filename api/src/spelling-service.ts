@@ -14,16 +14,15 @@ export class SpellingService {
         private choices: Company[]
     ) {}
 
-    async search(query: string, limit = 10, cutoff = 0.5): Promise<Company[]> {
+    async search(query: string, limit = 10, cutoff = 0.7): Promise<Company[]> {
         // Extract the best matches
         const extracted = await SpellingService.extract(query, this.choices, limit, cutoff)
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
-        const unique: ExtractResult[] = uniqBy(extracted, (item: ExtractResult) => item.choice)
+        const unique: ExtractResult[] = uniqBy(extracted, (item: ExtractResult) => item.choice.name)
 
         inPlaceSort(unique).by([
-            { desc: u => u.score },
-            { desc: u => u.choice.name },
+            { desc: u => u.score }
         ])
 
         return unique.map(item => item.choice)
@@ -40,8 +39,8 @@ export class SpellingService {
                 {
                     processor: (item: Company) => item.name.toLowerCase(),
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                    scorer: fuzzball.ratio,
-                    limit, 
+                    scorer: fuzzball.partial_ratio,
+                    limit,
                     cutoff,
                     unsorted: false,
                     returnObjects: true

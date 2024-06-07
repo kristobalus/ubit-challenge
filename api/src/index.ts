@@ -6,6 +6,9 @@ import companies from './data/companies.json';
 import { SpellingService } from "./spelling-service";
 
 const spellingService = new SpellingService(companies)
+const spellingCutoff = 0.7
+const spellingLength = 100
+
 const COINS = [
   'btc',
   'eth',
@@ -28,7 +31,9 @@ app.get('/companies', async (req, res) => {
   // const filteredCompanies = companies.filter((company) =>
   //   searchQuery ? company.name.toLowerCase().includes(searchQuery.toLowerCase()) : true,
   // );
-  const filteredCompanies = searchQuery ? await spellingService.search(searchQuery) : companies
+  const filteredCompanies = searchQuery
+      ? await spellingService.search(searchQuery, spellingLength, spellingCutoff)
+      : companies
 
   res.send(filteredCompanies);
 });
